@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">iLink Test Application</string>
+    <string name="show_cat">Показать котика</string>
+    <string name="show_duck">Показать утку</string>
+    <string name="bottom_menu_random_label">Случайные картинки</string>
+    <string name="bottom_menu_favourites_label">Избранные картинки</string>
 </resources>
