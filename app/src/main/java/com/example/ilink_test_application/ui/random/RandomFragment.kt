@@ -23,13 +23,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
+/**
+ * Class of view of random
+ *
+ * @property[binding] provides layout ids
+ * @property[viewModel] provides viewmodel
+ *
+ * @property[drawable] keeps drawable of last animal
+ */
 @AndroidEntryPoint
 class RandomFragment : Fragment(R.layout.fragment_random) {
+
     private val binding by viewBinding(FragmentRandomBinding::bind)
     private val viewModel: RandomViewModel by viewModels()
 
     lateinit var drawable: Drawable
 
+    /**
+     * Function to action when [View] is created
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.ivRandomAnimal.isVisible = false
@@ -40,6 +52,9 @@ class RandomFragment : Fragment(R.layout.fragment_random) {
         }
     }
 
+    /**
+     * Function to setup listeners
+     */
     private fun setupListeners() {
         binding.btnShowCat.setOnClickListener {
             setupObservers(viewModel.getRandomCat)
@@ -73,6 +88,9 @@ class RandomFragment : Fragment(R.layout.fragment_random) {
         ))
     }
 
+    /**
+     * Function to setup observers
+     */
     private fun setupObservers(liveData: LiveData<Resource<Animal>>) {
         liveData.observe(viewLifecycleOwner) { resource ->
             when (resource.status) {
@@ -98,6 +116,9 @@ class RandomFragment : Fragment(R.layout.fragment_random) {
         }
     }
 
+    /**
+     * Function which block interactions by @param[isLoading]
+     */
     private fun blockInteraction(isLoading: Boolean) {
         binding.progressBar.isVisible = isLoading
         binding.ivRandomAnimal.isEnabled = !isLoading
@@ -105,6 +126,12 @@ class RandomFragment : Fragment(R.layout.fragment_random) {
         binding.btnShowDuck.isEnabled = !isLoading
     }
 
+    /**
+     * Function to save file in local storage
+     *
+     * @param[drawable] keeps drawable
+     * @param[animal] keeps animal
+     */
     fun saveToFile(drawable: Drawable, animal: Animal) {
         val filename = animal.url.substringAfterLast("/")
         val file = File(context?.filesDir, filename)
