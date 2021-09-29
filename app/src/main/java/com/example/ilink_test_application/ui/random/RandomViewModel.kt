@@ -3,7 +3,6 @@ package com.example.ilink_test_application.ui.random
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -12,6 +11,7 @@ import com.example.ilink_test_application.data.repository.AnimalRepository
 import com.example.ilink_test_application.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -36,7 +36,6 @@ class RandomViewModel @Inject constructor(
 ) : ViewModel() {
 
     var lastAnimal: Animal? = null
-    var isFavorite = false
 
     val getRandomCat: LiveData<Resource<Animal>>
         get() = animalRepository.getRandomCat()
@@ -48,11 +47,9 @@ class RandomViewModel @Inject constructor(
     /**
      * Function to get if animal in local database
      */
-    fun isFav() = animalRepository.getAllAnimals().map { animalList ->
-        animalList.any { animal ->
-            animal.url == lastAnimal?.url
-        }
-    }
+    suspend fun isFavorite(): Boolean = viewModelScope.async {
+        animalRepository.isFavorite(lastAnimal!!)
+    }.await()
 
     /**
      * Function to save animal into local database

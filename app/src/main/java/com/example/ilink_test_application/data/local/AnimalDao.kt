@@ -19,6 +19,12 @@ interface AnimalDao {
     fun getAllAnimals(): LiveData<List<Animal>>
 
     /**
+     * Function to get to know if animal in table
+     */
+    @Query("SELECT * FROM animal WHERE url LIKE :url")
+    fun isFavorite(url: String): List<Animal>
+
+    /**
      * Function to insert @param[animal] in database
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)

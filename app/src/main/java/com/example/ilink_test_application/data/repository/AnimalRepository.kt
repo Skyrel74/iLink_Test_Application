@@ -7,9 +7,7 @@ import com.example.ilink_test_application.data.local.AnimalDao
 import com.example.ilink_test_application.data.remote.CatRemoteDataSource
 import com.example.ilink_test_application.data.remote.DuckRemoteDataSource
 import com.example.ilink_test_application.utils.Resource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import java.net.URI
 import javax.inject.Inject
@@ -81,5 +79,17 @@ class AnimalRepository @Inject constructor(
      */
     fun getAllAnimals(): LiveData<List<Animal>> = liveData(Dispatchers.IO) {
         emitSource(localAnimalDataSource.getAllAnimals())
+    }
+
+    /**
+     * Function to get to know if [animal] in table
+     */
+    suspend fun isFavorite(animal: Animal): Boolean {
+        val isFav: Deferred<Boolean> = withContext(Dispatchers.IO) {
+            async {
+                !localAnimalDataSource.isFavorite(animal.url).isNullOrEmpty()
+            }
+        }
+        return isFav.await()
     }
 }

@@ -47,9 +47,6 @@ class RandomFragment : Fragment(R.layout.fragment_random) {
         binding.ivRandomAnimal.isVisible = false
         binding.progressBar.isVisible = false
         setupListeners()
-        viewModel.isFav().observe(viewLifecycleOwner) {
-            viewModel.isFavorite = it
-        }
     }
 
     /**
@@ -67,21 +64,23 @@ class RandomFragment : Fragment(R.layout.fragment_random) {
         binding.ivRandomAnimal.setOnClickListener(DoubleClickListener(
             callback = object : DoubleClickListener.Callback {
                 override fun doubleClicked() {
-                    if (viewModel.isFavorite) {
-                        viewModel.deleteFavoriteAnimal()
-                        Toast.makeText(requireContext(),
-                            "Картинка удалена из понравившихся",
-                            Toast.LENGTH_SHORT)
-                            .show()
-                    } else {
-                        viewModel.saveFavoriteAnimal()
-                        lifecycleScope.launch(Dispatchers.Main) {
-                            saveToFile(drawable, viewModel.lastAnimal!!)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        if (viewModel.isFavorite()) {
+                            viewModel.deleteFavoriteAnimal()
+                            Toast.makeText(requireContext(),
+                                "Картинка удалена из понравившихся",
+                                Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            viewModel.saveFavoriteAnimal()
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                saveToFile(drawable, viewModel.lastAnimal!!)
+                            }
+                            Toast.makeText(requireContext(),
+                                "Картинка сохранена в понравившиеся",
+                                Toast.LENGTH_SHORT)
+                                .show()
                         }
-                        Toast.makeText(requireContext(),
-                            "Картинка сохранена в понравившиеся",
-                            Toast.LENGTH_SHORT)
-                            .show()
                     }
                 }
             }
