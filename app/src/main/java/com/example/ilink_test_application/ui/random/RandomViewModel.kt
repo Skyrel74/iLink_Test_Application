@@ -16,6 +16,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+/**
+ * Class of viewmodel
+ *
+ * @property[animalRepository] repository for manage local and remote data sources
+ * @property[glideRequestManager] glide request manager
+ *
+ * @property[lastAnimal] last get [Animal] from [AnimalRepository]
+ * @property[isFavorite] value is animal in local database
+ *
+ * @property[getRandomCat] provides [Animal] from CatAPI
+ * @property[getRandomDuck] provides [Animal] from DuckAPI
+ * @property[getAllAnimal] provide animals from local database
+ */
 @HiltViewModel
 class RandomViewModel @Inject constructor(
     private val animalRepository: AnimalRepository,
@@ -31,18 +44,28 @@ class RandomViewModel @Inject constructor(
         get() = animalRepository.getRandomDuck()
     val getAllAnimal: LiveData<List<Animal>>
         get() = animalRepository.getAllAnimals()
+
+    /**
+     * Function to get if animal in local database
+     */
     fun isFav() = animalRepository.getAllAnimals().map { animalList ->
         animalList.any { animal ->
             animal.url == lastAnimal?.url
         }
     }
 
+    /**
+     * Function to save animal into local database
+     */
     fun saveFavoriteAnimal() = viewModelScope.launch {
         if (lastAnimal != null) {
             animalRepository.saveAnimal(lastAnimal!!)
         }
     }
 
+    /**
+     * Function to get [Drawable] from [url]
+     */
     suspend fun getDrawable(url: String): Drawable = withContext(Dispatchers.IO) {
         glideRequestManager
             .load(url)
@@ -53,6 +76,9 @@ class RandomViewModel @Inject constructor(
             .get()
     }
 
+    /**
+     * Function to delete animal from local database
+     */
     fun deleteFavoriteAnimal() = viewModelScope.launch {
         if (lastAnimal != null) {
             animalRepository.deleteAnimal(lastAnimal!!)
